@@ -1,0 +1,60 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+  upstream api {
+    server api:3000;
+  }
+  upstream grafana {
+    server grafana:3000;
+  }
+  upstream jenkins-blueocean {
+    server jenkins-blueocean:8080;
+  }
+
+  server {
+    listen 443 ssl;
+    server_name ravi-api.sr.flipr.ai;
+
+    ssl_certificate /etc/letsencrypt/live/ravi-api.sr.flipr.ai/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ravi-api.sr.flipr.ai/privkey.pem;
+
+    location / {
+      proxy_pass http://api;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+
+  server {
+    listen 443 ssl;
+    server_name ravi-grafana.sr.flipr.ai;
+
+    ssl_certificate /etc/letsencrypt/live/ravi-grafana.sr.flipr.ai/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ravi-grafana.sr.flipr.ai/privkey.pem;
+
+    location / {
+      proxy_pass http://grafana;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+
+  server {
+    listen 443 ssl;
+    server_name ravi-jenkins.sr.flipr.ai;
+
+    ssl_certificate /etc/letsencrypt/live/ravi-jenkins.sr.flipr.ai/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ravi-jenkins.sr.flipr.ai/privkey.pem;
+
+    location / {
+      proxy_pass http://jenkins-blueocean;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}

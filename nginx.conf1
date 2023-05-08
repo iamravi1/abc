@@ -12,6 +12,11 @@ http {
   upstream jenkins-blueocean {
     server jenkins-blueocean:8080;
   }
+  
+  server {
+    listen 80;
+    return 301 https://$host$request_uri;
+  }
 
   server {
     listen 443 ssl;
